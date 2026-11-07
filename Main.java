@@ -1,6 +1,12 @@
 import java.util.*;
 
 public class Main {
+
+private static   User [] users = {
+        new Student("Aya", "Computer Science", "aya@example.edu", "0896769271", "650100"),
+        new Student("Mark", "Information Technology", "mark@example.edu", "0896769271", "650100"),
+        new Professor("Dr. Somchai", "Computer Science", "somchai@example.edu", "0896769271")
+};
     private static Map<String, Building> buildingMap = new HashMap<>();
     private static Scanner scanner = new Scanner(System.in);
 
@@ -9,243 +15,277 @@ public class Main {
         buildingMap.put("SIT", new SITBuilding("SIT", "SIT Building"));
         buildingMap.put("LX", new LXBuilding("LX", "LX Building"));
 
+
+
         boolean isRunning = true;
 
         while (isRunning) {
-            System.out.println("\n==========================================");
-            System.out.println("   ระบบจัดการตึกและห้องพัก (OOP & Interface)");
-            System.out.println("==========================================");
-            System.out.println("1. เพิ่มตึกใหม่เข้าสู่ระบบ");
-            System.out.println("2. เพิ่มห้องพักเข้าตึก (เลือกประเภทห้อง)");
-            System.out.println("3. ค้นหาห้องว่างในตึก (รายชั้น / รหัสห้อง)");
-            System.out.println("4. จองห้องพัก");
-            System.out.println("5. แสดงข้อมูลตึกและห้องทั้งหมด");
-            System.out.println("0. ออกจากโปรแกรม");
-            System.out.print("เลือกรายการ (0-5): ");
+            System.out.println("\n====================================================");
+            System.out.println("Building And Room Management System (OOP & Interface)");
+            System.out.println("======================================================");
+            //System.out.println("1. add new building into the system");
+            System.out.println("1. Add  New Room (choose room type)");
+            System.out.println("2. Find Empty Room (by floor / by room ID)");
+            System.out.println("3. Book A Room");
+            System.out.println("4. Show All Buildings and Rooms");
+            System.out.println("0. Exit The Program");
+            System.out.print("choose what to do (0-5): ");
 
             String choice = scanner.nextLine().trim();
 
             switch (choice) {
                 case "1":
-                    addNewBuilding();
-                    break;
-                case "2":
                     addRoomToBuilding();
                     break;
-                case "3":
+                case "2":
                     searchEmptyRoom();
                     break;
-                case "4":
+                case "3":
                     bookRoom();
                     break;
-                case "5":
+                case "4":
                     displayAllBuildings();
                     break;
                 case "0":
                     isRunning = false;
-                    System.out.println("👋 ออกจากโปรแกรมเรียบร้อยแล้ว");
+                    System.out.println(" exited the program");
                     break;
                 default:
-                    System.out.println("❌ ตัวเลือกไม่ถูกต้อง กรุณาเลือกใหม่");
+                    System.out.println(" invalid choice, choose again");
             }
         }
     }
 
-    // 1. เพิ่มตึกใหม่เข้าสู่ระบบ
-    private static void addNewBuilding() {
-        System.out.println("\n--- [เพิ่มตึกใหม่] ---");
-        System.out.print("ระบุรหัสตึก (เช่น SIT, LX, CB1): ");
-        String bId = scanner.nextLine().trim();
-
-        if (buildingMap.containsKey(bId)) {
-            System.out.println("❌ รหัสตึกนี้มีในระบบแล้ว!");
-            return;
-        }
-
-        System.out.print("ระบุชื่อตึก: ");
-        String bName = scanner.nextLine().trim();
-
-        System.out.println("เลือกประเภทตึก: 1. SIT Building  2. LX Building");
-        System.out.print("เลือก (1-2): ");
-        String type = scanner.nextLine().trim();
-
-        Building newBuilding;
-        if (type.equals("1")) {
-            newBuilding = new SITBuilding(bId, bName);
-        } else {
-            newBuilding = new LXBuilding(bId, bName);
-        }
-
-        buildingMap.put(bId, newBuilding);
-        System.out.println("✅ เพิ่มตึก \"" + bName + "\" เข้าสู่ระบบเรียบร้อย!");
-    }
-
-    // 2. เพิ่มห้องเข้าตึก (ใช้ abstractRoom ตาม Building.java)
+    // 1. เพิ่มห้องเข้าตึก (ใช้ abstractRoom ตาม Building.java)
     private static void addRoomToBuilding() {
-        System.out.println("\n--- [เพิ่มห้องพักเข้าตึก] ---");
+        System.out.println("\n--- [add room into the building] ---");
         if (buildingMap.isEmpty()) {
-            System.out.println("❌ ยังไม่มีตึกในระบบ");
+            System.out.println(" There is no building in the system");
             return;
         }
 
-        System.out.print("ป้อนรหัสตึกที่ต้องการเพิ่มห้อง: ");
+        System.out.print("input building ID to add room into: ");
         String bId = scanner.nextLine().trim();
         Building building = buildingMap.get(bId);
 
+
         if (building == null) {
-            System.out.println("❌ ไม่พบตึกรหัสนี้ในระบบ");
+            System.out.println("Building not found");
             return;
         }
 
-        System.out.print("ป้อนรหัสห้อง (เช่น SIT101): ");
+        System.out.print("input room ID (ex. SIT101): ");
         String rId = scanner.nextLine().trim();
+        abstractRoom room = building.getRooms().get(rId);
+        if (room != null) {
+            System.out.println("Room " + rId + " already exists in building " + building.getBuildingName());
+            return;
+        }
 
-        System.out.print("ป้อนชั้นที่อยู่ (เช่น 1, 2, 3): ");
+        System.out.print("input floor (ex. 1, 2, 3): ");
         int floor = Integer.parseInt(scanner.nextLine().trim());
 
-        System.out.print("ป้อนความจุผู้ใช้งานสูงสุด (คน): ");
+        System.out.print("input capacity (people): ");
         int capacity = Integer.parseInt(scanner.nextLine().trim());
 
-        System.out.print("ป้อนความกว้างห้อง (ม.): ");
+        System.out.print("input room width (m.): ");
         double w = Double.parseDouble(scanner.nextLine().trim());
 
-        System.out.print("ป้อนความยาวห้อง (ม.): ");
+        System.out.print("input room length (m.): ");
         double l = Double.parseDouble(scanner.nextLine().trim());
 
-        System.out.print("ป้อนความสูงห้อง (ม.): ");
+        System.out.print("input room height (m.):");
         double h = Double.parseDouble(scanner.nextLine().trim());
 
-        System.out.println("\nเลือกประเภทห้องที่จะสร้าง:");
+        System.out.println("\nchoose room type to create:");
         System.out.println("1. Study Room (ห้องอ่านหนังสือ)");
         System.out.println("2. Lab Room (ห้องปฏิบัติการคอมพิวเตอร์)");
-        System.out.print("เลือกประเภท (1-2): ");
-        String roomTypeChoice = scanner.nextLine().trim();
+        System.out.println("3. Meeting Room (ห้องประชุม)");
+        System.out.print("choose room type (1-3): ");
 
         abstractRoom newRoom; // เปลี่ยนชนิดตัวแปรเป็น abstractRoom
 
-        if (roomTypeChoice.equals("1")) {
-            System.out.print("มีไวท์บอร์ดหรือไม่? (y/n): ");
-            boolean hasBoard = scanner.nextLine().trim().equalsIgnoreCase("y");
-            newRoom = new StudyRoom(rId, floor, capacity, w, l, h, hasBoard);
-        } else {
-            System.out.print("ป้อนจำนวนเครื่องคอมพิวเตอร์ในห้อง: ");
-            int compCount = Integer.parseInt(scanner.nextLine().trim());
-            newRoom = new labRoom(rId, floor, capacity, w, l, h, compCount); // ใช้ labRoom (l ตัวเล็ก)
+        while (true) { 
+            String roomTypeChoice = scanner.nextLine().trim();
+            if (roomTypeChoice.equals("1")) {
+                System.out.print("consist of whiteboard? (y/n): ");
+                boolean hasBoard = scanner.nextLine().trim().equalsIgnoreCase("y");
+                newRoom = new StudyRoom(rId, floor, capacity, w, l, h, hasBoard);
+                break;
+            } else if (roomTypeChoice.equals("2")) {
+                System.out.print("input computer amount in the room: ");
+                int compCount = Integer.parseInt(scanner.nextLine().trim());
+                newRoom = new labRoom(rId, floor, capacity, w, l, h, compCount); // ใช้ labRoom (l ตัวเล็ก)
+                break;
+            } else if (roomTypeChoice.equals("3")) {
+                System.out.print("consist of projector?: ");
+                boolean hasProjector = scanner.nextLine().trim().equalsIgnoreCase("y");
+                newRoom = new meetingRoom(rId, floor, capacity, w, l, h, hasProjector);
+                break;
+            } else{
+                System.out.print("invalid choice, try again!!!: ");
+            }
         }
 
         building.addRoom(newRoom);
-        System.out.println("✅ เพิ่มห้อง [" + rId + "] ประเภท " + newRoom.getRoomType() + " เข้าตึก " + building.getBuildingName() + " สำเร็จ!");
+        System.out.println(" added room [" + rId + "] type: " + newRoom.getRoomType() + " into " + building.getBuildingName() + " successfully!");
     }
 
-    // 3. ค้นหาห้องว่าง
+    // 2. ค้นหาห้องว่าง
     private static void searchEmptyRoom() {
-        System.out.println("\n--- [ค้นหาห้องว่าง] ---");
-        System.out.print("ป้อนรหัสตึก: ");
+        System.out.println("\n--- [find empty room] ---");
+        System.out.print("input building ID: ");
         String bId = scanner.nextLine().trim();
         Building building = buildingMap.get(bId);
 
         if (building == null) {
-            System.out.println("❌ ไม่พบตึกนี้");
+            System.out.println("Building not found");
             return;
         }
 
-        System.out.println("รูปแบบการค้นหา:");
-        System.out.println("1. ค้นหาห้องว่างตามชั้น (int)");
-        System.out.println("2. ค้นหาห้องว่างด้วยรหัสห้อง (String)");
-        System.out.print("เลือก (1-2): ");
+        System.out.println("how to search:");
+        System.out.println("1. search by floor (int)");
+        System.out.println("2. search by room ID (String)");
+        System.out.print("choose (1-2): ");
         String searchChoice = scanner.nextLine().trim();
 
         if (searchChoice.equals("1")) {
-            System.out.print("ระบุเลขชั้น: ");
-            int floor = Integer.parseInt(scanner.nextLine().trim());
+            System.out.print("input floor: (Number Only)");
+            int floor = 0;
+            while (true) {
+                System.out.print("input floor: (Number Only)");
+            try {
+                floor = Integer.parseInt(scanner.nextLine().trim());
+                break; 
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input! Please enter a valid number.");
+        }
+    }
+            
             
             List<abstractRoom> emptyRooms = building.getEmptyRoom(floor);
-            System.out.println("\n🔍 ผลการค้นหาห้องว่างบนชั้น " + floor + ":");
+            System.out.println("\n result of searching floor " + floor + ":");
             if (emptyRooms.isEmpty()) {
-                System.out.println("   ไม่พบห้องว่างบนชั้นนี้");
+                System.out.println("   no empty room in this floor");
             } else {
                 for (abstractRoom r : emptyRooms) {
-                    System.out.println("   - ห้อง " + r.getRoomID() + " [" + r.getRoomType() + "] ปริมาตร: " + r.getVolume() + " ลบ.ม.");
+                    System.out.println("   - room " + r.getRoomID() + " [" + r.getRoomType() + "] volume: " + r.getVolume() + " cubic meters");
                 }
             }
-        } else if (searchChoice.equals("2")) {
-            System.out.print("ระบุรหัสห้อง: ");
+        }else if (searchChoice.equals("2")) {
+            System.out.print("input room ID: ");
             String rId = scanner.nextLine().trim();
             
             abstractRoom r = building.getEmptyRoom(rId);
             if (r != null) {
-                System.out.println("✅ ห้อง " + r.getRoomID() + " [" + r.getRoomType() + "] ว่างพร้อมใช้งาน!");
+                System.out.println(" room " + r.getRoomID() + " [" + r.getRoomType() + "] is empty and ready to be used!");
             } else {
-                System.out.println("❌ ไม่พบห้อง หรือห้องนี้ไม่ว่าง");
+                System.out.println(" room not found or not free");
             }
-        }
+         }
     }
 
-    // 4. จองห้องพัก
+    // 3. จองห้องพัก
     private static void bookRoom() {
-        System.out.println("\n--- [จองห้องพัก] ---");
-        System.out.print("ป้อนรหัสตึก: ");
+        System.out.println("\n--- [book room] ---");
+        displayAllBuildings();
+        System.out.print("input building ID: ");
         String bId = scanner.nextLine().trim();
         Building building = buildingMap.get(bId);
 
         if (building == null) {
-            System.out.println("❌ ไม่พบตึกนี้");
+            System.out.println("Building not found");
             return;
         }
 
-        System.out.print("ป้อนรหัสห้องที่ต้องการจอง: ");
+        System.out.print("input room to book: ");
         String rId = scanner.nextLine().trim();
         abstractRoom room = building.getRooms().get(rId);
 
         if (room == null) {
-            System.out.println("❌ ไม่พบห้องรหัสนี้");
+            System.out.println("Room not found");
             return;
         }
 
-        if (room.isOccupy()) {
-            System.out.println("⚠️ ห้องนี้ถูกจองไปแล้ว! " + room.getBookTime());
-            return;
+        int start = 0;
+            while (true) {
+                System.out.print("input start time (ex. 9 for 09:00 am.): ");
+            try {
+                start = Integer.parseInt(scanner.nextLine().trim());
+                if (start < 0 || start > 23) {
+                    System.out.println("Invalid input! Please enter a valid hour (0-23).");
+                    continue;
+                }
+                break; 
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input! Please enter a valid number.");
         }
-
-        System.out.print("ป้อนเวลาเริ่มจอง (เช่น 9 สำหรับ 09:00 น.): ");
-        int start = Integer.parseInt(scanner.nextLine().trim());
-        System.out.print("ป้อนเวลาสิ้นสุด (เช่น 12 สำหรับ 12:00 น.): ");
-        int end = Integer.parseInt(scanner.nextLine().trim());
-
-        boolean success = room.book(start, end);
+    }
+        
+        int end = 0;
+            while (true) {
+                System.out.print("input end time (ex. 12 for 12:00 pm.): ");
+            try {
+                end = Integer.parseInt(scanner.nextLine().trim());
+                if (end < 0 || end > 23 || end <= start) {
+                    System.out.println("Invalid input! Please enter a valid hour (0-23) or (End less than Start).");
+                    continue;
+                }
+                break; 
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input! Please enter a valid number.");
+        }
+    }
+        System.out.println("input your name: ");
+        String userName = scanner.nextLine().trim();
+        User user = null;
+        for (User u : users) {
+            if (u.getName().equalsIgnoreCase(userName)) {
+                user = u;
+                break;
+    }
+}
+        boolean success = room.book(start, end, user);
         if (success) {
-            System.out.println("🎉 จองห้อง " + room.getRoomID() + " สำเร็จ!");
-            System.out.println("   ระยะเวลาการใช้งาน: " + room.timeThatTheRoomNotEmpty() + " ชั่วโมง");
+            System.out.println(" booked room " + room.getRoomID() + " successfully!");
+            System.out.println("   booked time: " + room.timeThatTheRoomNotEmpty() + " hour(s)");
         } else {
-            System.out.println("❌ การจองล้มเหลว");
+            System.out.println(" booking failed");
+            System.out.println("Do you want to see who booked it? (y/n): ");
+            String seeUserChoice = scanner.nextLine().trim();
+            if (seeUserChoice.equalsIgnoreCase("y")) {
+                System.out.println("   booked by: " + room.getUserWhoBook());
+            }
         }
     }
 
-    // 5. แสดงข้อมูลตึกและห้องทั้งหมด
+    // 4. แสดงข้อมูลตึกและห้องทั้งหมด
     private static void displayAllBuildings() {
-        System.out.println("\n===== รายงานตึกและห้องทั้งหมดในระบบ =====");
+        System.out.println("\n===== all buildings and rooms in the system =====");
         if (buildingMap.isEmpty()) {
-            System.out.println("ยังไม่มีข้อมูลในระบบ");
+            System.out.println("no data in the system");
             return;
         }
 
         for (Building b : buildingMap.values()) {
-            System.out.println("\n🏢 ตึก: " + b.getBuildingName() + " (รหัส: " + b.getBuildingId() + ")");
+            System.out.println("\n building: " + b.getBuildingName() + " (ID: " + b.getBuildingId() + ")");
             Map<String, abstractRoom> rooms = b.getRooms();
             
             if (rooms.isEmpty()) {
-                System.out.println("   (ยังไม่มีห้องในตึกนี้)");
+                System.out.println("   (no room in this building))");
             } else {
                 for (abstractRoom r : rooms.values()) {
-                    System.out.printf("   [ห้อง %s] ชั้น %d | ประเภท: %-18s | ความจุ: %d คน | ปริมาตร: %.1f ลบ.ม. | สถานะ: %s\n",
+                    System.out.printf("   [room %s] floor %d | type: %-18s | capacity: %d people | volume: %.1f cubic meters | status: %s\n",
                             r.getRoomID(),
                             r.getFloor(),
                             r.getRoomType(),
                             r.getHowManyPeople(),
                             r.getVolume(),
-                            (r.isOccupy() ? "❌ ถูกจองแล้ว (" + r.getBookTime() + ")" : "✅ ว่าง"));
+                            (r.isOccupy() ? " already booked (" + r.getBookTime() + ")" : " free"));
                 }
             }
         }
     }
 }
+
+    
